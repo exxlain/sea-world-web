@@ -5,7 +5,7 @@ import { rootReducer } from './reducers'
 const config = {
   key: 'root',
   storage,
-  whitelist: ['pictures'],
+ // whitelist: ['pictures'],
 }
 
 const configureReducer = () => persistReducer(config, rootReducer)

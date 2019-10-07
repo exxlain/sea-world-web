@@ -1,13 +1,17 @@
 import { connect } from 'react-redux'
-import Map from '../../components/Map/Map'
+import { bindActionCreators } from 'redux'
+import Main from '../components/Main/Main'
+import { getNextStep } from '../actions/map'
 
 const mapStateToProps = () => {
   const { map: { data } } = global.store.getState()
-  const { map: { startRenderingTime } } = global.store.getState()
   return {
     data,
-    startRenderingTime,
   }
 }
 
-export default connect(mapStateToProps)(Map)
+const mapDispatchToProps = dispatch =>bindActionCreators({
+  getNextStep,
+}, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main)

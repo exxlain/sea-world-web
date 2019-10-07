@@ -1,30 +1,33 @@
 import { createLogic } from 'redux-logic'
-import mapEndpoint from '../api/mapEndpoint'
-import { SYNC_MAP, SYNC_CANCEL_MAP } from '../constants/map'
 import {
-  updateMap, syncFailed, updateDataLoadingTime, setStartRenderingTime,
+  SYNC_MAP,
+  SYNC_CANCEL_MAP,
+} from '../constants/map'
+import {
+  updateMap, syncFailed,
 } from '../actions/map'
+import gameChannel from '../api/game'
 
-const shadowInLogic = createLogic({
+const fetchMapLogic = createLogic({
   type: SYNC_MAP,
   cancelType: SYNC_CANCEL_MAP,
 
-  process({ action }, dispatch, done) {
-    const start = new Date()
-    mapEndpoint.getMap(action.number)
-      .then((response) => {
-        const end = new Date()
-        const interval = (end - start)
-        dispatch(updateDataLoadingTime(interval))
-        const { data } = response
-        dispatch(setStartRenderingTime(end))
-        dispatch(updateMap(data, interval))
-        done()
-      }).catch((error) => {
-        dispatch(syncFailed(error))
-        return false
-      })
+  process(_, dispatch, done) {
+    gameChannel({
+      request: (channel) => {
+        channel.perform('get_map')
+      },
+      response: (response) => {
+        const { data, error } = response
+        if (error) {
+          dispatch(syncFailed(error))
+        } else {
+          dispatch(updateMap(data))
+        }
+          done()
+      },
+    })
   },
 })
 
-export default shadowInLogic
+export default fetchMapLogic
